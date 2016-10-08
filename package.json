@@ -12,10 +12,6 @@
   },
   "homepage": "https://github.com/firstandthird/hapi-micro-mail",
   "dependencies": {
-    "handlebars": "^4.0.5",
-    "hapi": "^15.1.1",
-    "hoek": "^4.0.1",
-    "lodash": "^4.13.1",
     "lodash.defaults": "^4.2.0",
     "request": "^2.75.0"
   },
@@ -26,7 +22,6 @@
     "eslint-plugin-import": "^1.14.0",
     "hapi": "^15.1.1",
     "lab": "^10.8.2",
-    "nodemon": "1.9.2"
   },
   "keywords": [
     "hapi",
