@@ -3,7 +3,7 @@ const wreck = require('wreck');
 
 const defaultOptions = {
   verbose: false,
-  host: 'http://thing1:8080' // the micro-mail host
+  host: 'http://localhost:8080' // the micro-mail host
 };
 
 exports.register = function(server, options, next) {
