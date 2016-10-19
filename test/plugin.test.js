@@ -54,4 +54,14 @@ lab.describe('.sendEmail', { timeout: 5000 }, () => {
       done();
     });
   });
+
+  lab.it('can send an email to a micro-mail server without providing a callback', (done) => {
+    server.sendEmail({
+      from: 'me@me.com',
+      to: 'you@you.com',
+      subject: 'this is the subject of an email I am sending to you',
+      text: 'This is the text of the email I am sending to you!'
+    });
+    setTimeout(done, 2000);
+  });
 });
