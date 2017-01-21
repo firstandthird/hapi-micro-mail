@@ -16,7 +16,7 @@ exports.register = function(server, options, next) {
     }
     wreck.post(hostAddress, { payload: data }, (err, response, payload) => {
       if (err) {
-        server.log(['error', 'hapi-micro-mail'], err);
+        return server.log(['error', 'hapi-micro-mail'], err);
       }
       payload = JSON.parse(payload.toString());
       if (options.verbose) {
@@ -38,6 +38,5 @@ exports.register = function(server, options, next) {
 };
 
 exports.register.attributes = {
-  name: 'mailer-integration',
   pkg: require('./package.json')
 };
