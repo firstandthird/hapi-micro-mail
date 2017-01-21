@@ -29,7 +29,7 @@ lab.beforeEach((done) => {
     microMailServer.start(done);
   });
 });
-// these tests assume you have a micro-mail server running at localhost:8080:
+
 lab.describe('.sendEmail', { timeout: 5000 }, () => {
   lab.it('can send invalid params to a micro-mail server and get an error response', (done) => {
     microMailServer.route({
