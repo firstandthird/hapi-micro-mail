@@ -1,6 +1,6 @@
 {
   "name": "hapi-micro-mail",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Hapi plugin for using a micro-mail server",
   "main": "index.js",
   "repository": {
