@@ -19,7 +19,10 @@ exports.register = function(server, options, next) {
     wreck.post(hostAddress, { payload: data }, (err, response, payload) => {
       if (err) {
         server.log(['error', 'hapi-micro-mail'], err);
-        return done(err);
+        if (typeof done === 'function') {
+          return done(err);
+        }
+        return;
       }
       payload = JSON.parse(payload.toString());
       if (options.verbose) {
@@ -49,7 +52,7 @@ exports.register = function(server, options, next) {
           }
         }
         // if only one submission or sendIndividual was not true:
-        if (payload.result.response.indexOf('250') < 0) {
+        if (payload.result.response.indexOf('250') === -1) {
           return done({
             status: 'error',
             message: payload.message,
