@@ -12,14 +12,14 @@
   },
   "homepage": "https://github.com/firstandthird/hapi-micro-mail",
   "dependencies": {
-    "lodash.defaults": "^4.2.0",
+    "boom": "^4.2.0",
     "wreck": "^10.0.0"
   },
   "devDependencies": {
     "code": "^4.0.0",
-    "eslint": "^3.4.0",
-    "eslint-config-firstandthird": "^3.0.2",
-    "eslint-plugin-import": "^2.2.0",
+    "eslint": "^3.9.1",
+    "eslint-config-firstandthird": "^3.2.0",
+    "eslint-plugin-import": "^2.1.0",
     "hapi": "^16.0.2",
     "lab": "^11.2.1"
   },
