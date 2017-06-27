@@ -21,6 +21,7 @@ lab.beforeEach((done) => {
     register: require('../'),
     options: {
       host: 'http://localhost:8080',
+      apiKey: 'jksdf',
       verbose: true
     }
   }, () => {
