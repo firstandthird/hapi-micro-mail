@@ -3,15 +3,16 @@ const wreck = require('wreck');
 const Boom = require('boom');
 const defaultOptions = {
   verbose: false,
-  host: '' // the micro-mail host
+  host: '', // the micro-mail host
+  apiKey: '' // the micro-mail api-key
 };
 
 exports.register = function(server, options, next) {
   options = Object.assign({}, defaultOptions, options);
-  if (options.host === '') {
-    return next('You must specify a micro-mail host!');
+  if (options.host === '' || options.apiKey === '') {
+    return next('You must specify a micro-mail host and apiKey!');
   }
-  const hostAddress = `${options.host}/send`;
+  const hostAddress = `${options.host}/send?token=${options.apiKey}`;
   server.decorate('server', 'sendEmail', (data, done) => {
     if (options.verbose) {
       server.log(['debug', 'hapi-micro-mail'], { message: `sending request to ${hostAddress}`, data });

@@ -15,10 +15,11 @@ lab.describe('.sendEmail', { timeout: 5000 }, () => {
     server.register({
       register: require('../'),
       options: {
+        apiKey: 'ksjdf',
         verbose: true
       }
     }, (err) => {
-      code.expect(err).to.include('You must specify a micro-mail host!');
+      code.expect(err).to.include('You must specify a micro-mail host');
       done();
     });
   });
