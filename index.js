@@ -12,12 +12,13 @@ exports.register = function(server, options, next) {
   if (options.host === '' || options.apiKey === '') {
     return next('You must specify a micro-mail host and apiKey!');
   }
-  const hostAddress = `${options.host}/send?token=${options.apiKey}`;
+
+  const sendAddress = `${options.host}/send?token=${options.apiKey}`;
   server.decorate('server', 'sendEmail', (data, done) => {
     if (options.verbose) {
-      server.log(['debug', 'hapi-micro-mail'], { message: `sending request to ${hostAddress}`, data });
+      server.log(['debug', 'hapi-micro-mail', 'send'], { message: `sending request to ${sendAddress}`, data });
     }
-    wreck.post(hostAddress, { payload: data }, (err, response, payload) => {
+    wreck.post(sendAddress, { payload: data }, (err, response, payload) => {
       if (err) {
         server.log(['error', 'hapi-micro-mail'], err);
         if (typeof done === 'function') {
@@ -62,6 +63,29 @@ exports.register = function(server, options, next) {
         }
         return done(null, payload);
       }
+    });
+  });
+
+  const renderAddress = `${options.host}/render?token=${options.apiKey}`;
+  server.decorate('server', 'renderEmail', (data, done) => {
+    if (options.verbose) {
+      server.log(['debug', 'hapi-micro-mail', 'render'], { message: `sending request to ${renderAddress}`, data });
+    }
+    wreck.post(renderAddress, { payload: data }, (err, response, payload) => {
+      if (err) {
+        server.log(['error', 'hapi-micro-mail'], err);
+        return done(err);
+      }
+      payload = payload.toString();
+      if (options.verbose) {
+        server.log(['debug', 'hapi-micro-mail'], { message: 'micro-mail server responded', data: payload });
+      }
+
+      if (response.statusCode !== 200) {
+        return done(Boom.create(response.statusCode, response.statusMessage, payload));
+      }
+
+      return done(null, payload);
     });
   });
   next();
