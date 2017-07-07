@@ -126,4 +126,29 @@ lab.describe('.sendEmail', { timeout: 5000 }, () => {
     });
     setTimeout(done, 2000);
   });
+
+  lab.it('can render an email from a micro-mail server', (done) => {
+    microMailServer.route({
+      path: '/render',
+      method: 'POST',
+      handler: (request, reply) => {
+        code.expect(request.payload.from).to.equal('me@me.com');
+        code.expect(request.payload.to).to.equal('you@you.com');
+        code.expect(request.payload.subject).to.equal('this is the subject of an email I am sending to you');
+        code.expect(request.payload.text).to.equal('This is the text of the email I am sending to you!');
+        return reply('<html><h1>HI!</h1></html>');
+      }
+    });
+    server.renderEmail({
+      from: 'me@me.com',
+      to: 'you@you.com',
+      subject: 'this is the subject of an email I am sending to you',
+      text: 'This is the text of the email I am sending to you!'
+    }, (err, data) => {
+      code.expect(err).to.equal(null);
+      code.expect(data).to.equal('<html><h1>HI!</h1></html>');
+      done();
+    });
+  });
+
 });
