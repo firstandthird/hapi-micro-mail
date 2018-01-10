@@ -22,6 +22,7 @@ lab.describe('.sendEmail', { timeout: 5000 }, () => {
       });
     } catch (err) {
       code.expect(err.toString()).to.include('You must specify a micro-mail host');
+      await server.stop();
     }
   });
 });
