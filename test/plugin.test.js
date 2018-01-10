@@ -2,46 +2,44 @@
 const code = require('code');
 const Hapi = require('hapi');
 const lab = exports.lab = require('lab').script();
+const boom = require('boom');
 let server;
 let microMailServer;
 
-lab.afterEach((done) => {
-  microMailServer.stop(done);
+lab.afterEach(async() => {
+  await microMailServer.stop();
 });
 
-lab.beforeEach((done) => {
+lab.beforeEach(async() => {
   server = new Hapi.Server({
     debug: {
       log: 'hapi-micro-mail'
-    }
+    },
+    port: 8000
   });
-  server.connection({ port: 8000 });
-  server.register({
-    register: require('../'),
+  await server.register({
+    plugin: require('../'),
     options: {
       host: 'http://localhost:8080',
       apiKey: 'jksdf',
       verbose: true
     }
-  }, () => {
-    microMailServer = new Hapi.Server({});
-    microMailServer.connection({ port: 8080 });
-    microMailServer.start(done);
   });
+  microMailServer = new Hapi.Server({ port: 8080 });
+  await microMailServer.start();
 });
 
 lab.describe('.sendEmail', { timeout: 5000 }, () => {
-  lab.it('can handle an HTTP error response from the micro-mail server', (done) => {
+  lab.it('can handle an HTTP error response from the micro-mail server', async() => {
     microMailServer.route({
       path: '/send',
       method: 'POST',
-      handler: (request, reply) => {
+      handler: (request, h) => {
         code.expect(request.payload.from).to.equal('emal@example.com');
-        return reply({
-          error: 'Bad Request',
+        throw boom.badRequest({
           message: 'Validation error',
           result: '"to" is required'
-        }).code(400);
+        });
       }
     });
     const badParams = {
@@ -49,26 +47,30 @@ lab.describe('.sendEmail', { timeout: 5000 }, () => {
       subject: 'This is a subject',
       text: 'Hello there email text'
     };
-    server.sendEmail(badParams, (err) => {
+    try {
+      await server.sendEmail(badParams);
+    } catch (err) {
       code.expect(err).to.not.equal(null);
       code.expect(err.isBoom).to.equal(true);
-      code.expect(err.data.error).to.equal('Bad Request');
-      done();
-    });
+      code.expect(err.output.payload.error).to.equal('Bad Request');
+    }
   });
-  lab.it('can handle a micro-mail server SMTP error', (done) => {
+
+  lab.it('can handle a micro-mail server SMTP error', async() => {
     microMailServer.route({
       path: '/send',
       method: 'POST',
-      handler: (request, reply) => reply({
-        status: 'error',
-        message: 'Boo',
-        result: {
-          accepted: [],
-          rejected: ['nobody@nowhere.com'],
-          response: '502 Command not implemented'
-        }
-      })
+      handler: (request, h) => {
+        return {
+          status: 'error',
+          message: 'Boo',
+          result: {
+            accepted: [],
+            rejected: ['nobody@nowhere.com'],
+            response: '502 Command not implemented'
+          }
+        };
+      }
     });
     const badParams = {
       from: 'emal@example.com',
@@ -76,79 +78,64 @@ lab.describe('.sendEmail', { timeout: 5000 }, () => {
       subject: 'This is a subject',
       text: 'Hello there email text'
     };
-    server.sendEmail(badParams, (err) => {
+    try {
+      await server.sendEmail(badParams);
+    } catch (err) {
       code.expect(err).to.not.equal(null);
-      code.expect(err.status).to.equal('error');
       code.expect(err.message).to.equal('Boo');
       code.expect(err.result.response).to.equal('502 Command not implemented');
       code.expect(err.result.rejected.length).to.equal(1);
-      done();
-    });
+    }
   });
-  lab.it('can send an email to a micro-mail server', (done) => {
+
+  lab.it('can send an email to a micro-mail server', async() => {
     microMailServer.route({
       path: '/send',
       method: 'POST',
-      handler: (request, reply) => {
+      handler: (request, h) => {
         code.expect(request.payload.from).to.equal('me@me.com');
         code.expect(request.payload.to).to.equal('you@you.com');
         code.expect(request.payload.subject).to.equal('this is the subject of an email I am sending to you');
         code.expect(request.payload.text).to.equal('This is the text of the email I am sending to you!');
-        return reply({
+        return {
           status: 'ok',
           message: 'Email delivered',
           result: {
             response: '250 Message queued',
             accepted: [request.payload.to]
           }
-        });
+        };
       }
     });
-    server.sendEmail({
-      from: 'me@me.com',
-      to: 'you@you.com',
-      subject: 'this is the subject of an email I am sending to you',
-      text: 'This is the text of the email I am sending to you!'
-    }, (err, res) => {
-      code.expect(err).to.equal(null);
-      code.expect(res.status).to.equal('ok');
-      code.expect(res.result.accepted.length).to.equal(1);
-      code.expect(res.result.accepted[0]).to.equal('you@you.com');
-      done();
-    });
-  });
-  lab.it('can send an email to a micro-mail server without providing a callback', (done) => {
-    server.sendEmail({
+    const res = await server.sendEmail({
       from: 'me@me.com',
       to: 'you@you.com',
       subject: 'this is the subject of an email I am sending to you',
       text: 'This is the text of the email I am sending to you!'
     });
-    setTimeout(done, 2000);
+    code.expect(res.status).to.equal('ok');
+    code.expect(res.result.accepted.length).to.equal(1);
+    code.expect(res.result.accepted[0]).to.equal('you@you.com');
   });
 
-  lab.it('can render an email from a micro-mail server', (done) => {
+  lab.it('can render an email from a micro-mail server', async() => {
     microMailServer.route({
       path: '/render',
       method: 'POST',
-      handler: (request, reply) => {
+      handler: (request, h) => {
         code.expect(request.payload.from).to.equal('me@me.com');
         code.expect(request.payload.to).to.equal('you@you.com');
         code.expect(request.payload.subject).to.equal('this is the subject of an email I am sending to you');
         code.expect(request.payload.text).to.equal('This is the text of the email I am sending to you!');
-        return reply('<html><h1>HI!</h1></html>');
+        return '<html><h1>HI!</h1></html>';
       }
     });
-    server.renderEmail({
+    const data = await server.renderEmail({
       from: 'me@me.com',
       to: 'you@you.com',
       subject: 'this is the subject of an email I am sending to you',
       text: 'This is the text of the email I am sending to you!'
-    }, (err, data) => {
-      code.expect(err).to.equal(null);
-      code.expect(data).to.equal('<html><h1>HI!</h1></html>');
-      done();
     });
+    code.expect(data).to.equal('<html><h1>HI!</h1></html>');
   });
-
 });
