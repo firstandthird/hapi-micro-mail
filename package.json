@@ -12,8 +12,8 @@
   },
   "homepage": "https://github.com/firstandthird/hapi-micro-mail",
   "dependencies": {
-    "boom": "^4.2.0",
-    "wreck": "^10.0.0"
+    "boom": "^7.1.1",
+    "wreck": "^14.0.2"
   },
   "devDependencies": {
     "code": "^5.1.2",
