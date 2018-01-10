@@ -1,60 +1,60 @@
-// 'use strict';
-// const code = require('code');
-// const Hapi = require('hapi');
-// const lab = exports.lab = require('lab').script();
-// const boom = require('boom');
-// let server;
-// let microMailServer;
-//
-// lab.afterEach(async() => {
-//   await microMailServer.stop();
-// });
-//
-// lab.beforeEach(async() => {
-//   server = new Hapi.Server({
-//     debug: {
-//       log: 'hapi-micro-mail'
-//     },
-//     port: 8000
-//   });
-//   await server.register({
-//     plugin: require('../'),
-//     options: {
-//       host: 'http://localhost:8080',
-//       apiKey: 'jksdf',
-//       verbose: true
-//     }
-//   });
-//   microMailServer = new Hapi.Server({ port: 8080 });
-//   await microMailServer.start();
-// });
-//
-// lab.describe('.sendEmail', { timeout: 5000 }, () => {
-//   lab.it('can handle an HTTP error response from the micro-mail server', async() => {
-//     microMailServer.route({
-//       path: '/send',
-//       method: 'POST',
-//       handler: (request, h) => {
-//         code.expect(request.payload.from).to.equal('emal@example.com');
-//         throw boom.badRequest({
-//           message: 'Validation error',
-//           result: '"to" is required'
-//         });
-//       }
-//     });
-//     const badParams = {
-//       from: 'emal@example.com',
-//       subject: 'This is a subject',
-//       text: 'Hello there email text'
-//     };
-//     try {
-//       await server.sendEmail(badParams);
-//     } catch (err) {
-//       code.expect(err).to.not.equal(null);
-//       code.expect(err.isBoom).to.equal(true);
-//       code.expect(err.output.payload.error).to.equal('Bad Request');
-//     }
-//   });
+'use strict';
+const code = require('code');
+const Hapi = require('hapi');
+const lab = exports.lab = require('lab').script();
+const boom = require('boom');
+let server;
+let microMailServer;
+
+lab.afterEach(async() => {
+  await microMailServer.stop();
+});
+
+lab.beforeEach(async() => {
+  server = new Hapi.Server({
+    debug: {
+      log: 'hapi-micro-mail'
+    },
+    port: 8000
+  });
+  await server.register({
+    plugin: require('../'),
+    options: {
+      host: 'http://localhost:8080',
+      apiKey: 'jksdf',
+      verbose: true
+    }
+  });
+  microMailServer = new Hapi.Server({ port: 8080 });
+  await microMailServer.start();
+});
+
+lab.describe('.sendEmail', { timeout: 5000 }, () => {
+  lab.it('can handle an HTTP error response from the micro-mail server', async() => {
+    microMailServer.route({
+      path: '/send',
+      method: 'POST',
+      handler: (request, h) => {
+        code.expect(request.payload.from).to.equal('emal@example.com');
+        throw boom.badRequest({
+          message: 'Validation error',
+          result: '"to" is required'
+        });
+      }
+    });
+    const badParams = {
+      from: 'emal@example.com',
+      subject: 'This is a subject',
+      text: 'Hello there email text'
+    };
+    try {
+      await server.sendEmail(badParams);
+    } catch (err) {
+      code.expect(err).to.not.equal(null);
+      code.expect(err.isBoom).to.equal(true);
+      code.expect(err.output.payload.error).to.equal('Bad Request');
+    }
+  });
 //
 //   lab.it('can handle a micro-mail server SMTP error', async() => {
 //     microMailServer.route({
@@ -138,4 +138,4 @@
 //     });
 //     code.expect(data).to.equal('<html><h1>HI!</h1></html>');
 //   });
-// });
+});
