@@ -25,7 +25,7 @@ const register = (server, options) => {
     }
     // handle all HTTP-level errors:
     if (res.statusCode !== 200) {
-      throw Boom.create(res.statusCode, res.statusMessage, payload);
+      throw new Boom(res.statusMessage, { statusCode: res.statusCode, data: payload });
     }
     // handle SMTP-level errors (return codes that are not '250')
     // if there were multiple submissions sent with sendIndividual:
@@ -65,7 +65,7 @@ const register = (server, options) => {
     }
 
     if (res.statusCode !== 200) {
-      throw Boom.create(res.statusCode, res.statusMessage, payload);
+      throw new Boom(res.statusMessage, { statusCode: res.statusCode, data: payload });
     }
 
     return payload.toString();
