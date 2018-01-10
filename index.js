@@ -18,6 +18,10 @@ const register = (server, options) => {
     if (options.verbose) {
       server.log(['debug', 'hapi-micro-mail', 'send'], { message: `sending request to ${sendAddress}`, data });
     }
+    console.log('address:')
+    console.log(sendAddress)
+    console.log('post data:')
+    console.log(data)
     const { res, payload } = await wreck.post(sendAddress, { payload: data, json: true });
     console.log('result is:')
     console.log(res)
