@@ -50,6 +50,8 @@ lab.describe('.sendEmail', { timeout: 5000 }, () => {
     try {
       await server.sendEmail(badParams);
     } catch (err) {
+      console.log(err)
+      console.log(err.toString())
       code.expect(err).to.not.equal(null);
       code.expect(err.isBoom).to.equal(true);
       code.expect(err.output.payload.error).to.equal('Bad Request');
