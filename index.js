@@ -21,8 +21,6 @@ const register = (server, options) => {
     const { res, payload } = await wreck.post(sendAddress, { payload: data, json: true });
     console.log('result is:')
     console.log(res)
-    console.log(res.statusCode)
-    console.log(res.result)
     console.log(payload)
     // payload = JSON.parse(payload.toString());
     if (options.verbose) {
