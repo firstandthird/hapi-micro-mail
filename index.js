@@ -45,7 +45,7 @@ const register = (server, options) => {
       }
     }
     // if only one submission or sendIndividual was not true:
-    if (payload.result.response.indexOf('250') === -1) {
+    if (payload.result && payload.result.response && payload.result.response.indexOf('250') === -1) {
       const err = new Error(payload.message);
       err.result = payload.result;
       throw err;
