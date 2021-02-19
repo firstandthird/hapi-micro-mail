@@ -29,5 +29,6 @@
   ],
   "scripts": {
     "test": "lab -e test"
-  }
+  },
+  "license": "MIT"
 }
