@@ -8,13 +8,13 @@
 npm install hapi-micro-mail
 ```
 
-## Basic Use (sending an Email)
+## Register the Plugin
 
 Assuming you have a micro-mail server set up at `https://my-mail.com` and its API key is '12345', just register the hapi-micro-mail plugin with hapi:
 
 ```js
 await server.register({
-  plugin: require('../'),
+  plugin: require('hapi-micro-mail'),
   options: {
     host: 'https://my-mail.com',
     apiKey: '12345'
@@ -22,10 +22,14 @@ await server.register({
 });
 ```
 
-This will decorate the server with the `sendEmail()` function.  Your code should wrap calls to this function in a `try...catch` block as there are many errors that can occur when sending an email:
+__You must include the host and apiKey fields to use this plugin__.  This will decorate the server with the `sendEmail()` and `renderEmail` functions.
 
+## sendEmail()
+
+ Your code should wrap calls to this function in a `try...catch` block as there are many errors that can occur when sending an email:
+
+Sending an explicit text email:
 ```js
-// sending an explicit text email:
 try {
   const output = await server.sendEmail({
     from: 'me@me.com',
@@ -37,8 +41,10 @@ try {
   server.log(['email-error', 'error!'], e.toString());
   // (maybe do something else with your error here)
 }
+```
 
-// rendering and sending a templated email hosted on micro-mail:
+Rendering and sending an email template hosted on micro-mail:
+```js
 try {
   const output = await server.sendEmail({
     from: 'me@me.com',
@@ -103,9 +109,7 @@ Valid fields that you can specify in `sendEmail` are:
 
 ## Render Email
 
-micro-mail also hosts an email template rendering service.  Identical to view rendering with HTML pages, you pass it some data and the name of the template and it will fill out the template using the data you provided. You can use the `renderEmail()` function to preview what your email will look like with a given set of data. It will not actually send the email, just return back the email packet so you can verify what it will look like before you send it out:
-
-`renderEmail()` accepts all of the fields that the `sendEmail()` function accepts.  The only difference is that it won't actually send the email and instead just returns the email content:
+micro-mail also hosts an email template rendering service.  Identical to view rendering with HTML pages, you pass it some data and the name of the template and it will fill out the template using the data you provided. You can use the `renderEmail()` function to preview what your email will look like with a given set of data. It will not actually send the email, just return back the email packet so you can verify what it will look like before you send it out.
 
 So if your micro-mail server has a template named `welcome-email`:
 
@@ -114,7 +118,7 @@ So if your micro-mail server has a template named `welcome-email`:
   Your login is: <b> {{login}} </b>
 ```
 
-you can preview it:
+you can preview it without really sending it:
 
 ```js
 const html = await server.renderEmail({
@@ -136,11 +140,12 @@ and `html` will be the string:
 Your login is: <b> zombie_hunter </b>
 ```
 
+`renderEmail()` accepts all of the fields that the `sendEmail()` function accepts.  The only difference is that it won't actually send the email and only returns the rendered email text.
 
 ## Plugin Options
 
   The following are options you specify when you register the plugin:
-  
+
 - _host_ (required)
 
   Complete URL of the micro-mail instance, should start with 'http://' or 'https://'
