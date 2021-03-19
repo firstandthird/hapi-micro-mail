@@ -48,7 +48,8 @@ Rendering and sending an email template hosted on micro-mail:
 try {
   const output = await server.sendEmail({
     from: 'me@me.com',
-    to: 'you@you.com',
+    // 'to' can also be an array for multiple recipients:
+    to: ['you@you.com', 'andyou@you.com', 'andalsoyou@you.com'],
     subject: 'Welcome!',
     template: 'welcome-message',
     data: {
@@ -62,7 +63,7 @@ try {
 }
 ```
 
-If successful, `output` will look like:
+If successful, `output` will look something like:
 ```js
 {
   status: 'ok',
