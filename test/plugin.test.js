@@ -22,7 +22,8 @@ lab.beforeEach(async() => {
     options: {
       host: 'http://localhost:8080',
       apiKey: 'jksdf',
-      verbose: true
+      verbose: true,
+      blacklist: ['jamesspader@gmail.com']
     }
   });
   microMailServer = new Hapi.Server({ port: 8080 });
@@ -137,5 +138,35 @@ lab.describe('.sendEmail', { timeout: 5000 }, () => {
       text: 'This is the text of the email I am sending to you!'
     });
     code.expect(data).to.equal('<html><h1>HI!</h1></html>');
+  });
+
+  lab.it('will exclude emails in the blacklist', async () => {
+    microMailServer.route({
+      path: '/render',
+      method: 'POST',
+      handler: (request, h) => {
+        code.fail();
+      }
+    });
+    microMailServer.route({
+      path: '/send',
+      method: 'POST',
+      handler: (request, h) => {
+        code.fail();
+      }
+    });
+
+    const res = await server.sendEmail({
+      from: 'me@me.com',
+      to: 'jamesspader@gmail.com',
+      subject: 'this is the subject of an email I am sending to you',
+      text: 'This is the text of the email I am sending to you!'
+    });
+    const res2 = await server.renderEmail({
+      from: 'me@me.com',
+      to: 'jamesspader@gmail.com',
+      subject: 'this is the subject of an email I am sending to you',
+      text: 'This is the text of the email I am sending to you!'
+    });
   });
 });
