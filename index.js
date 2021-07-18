@@ -3,6 +3,7 @@ const wreck = require('wreck');
 const Boom = require('boom');
 const defaultOptions = {
   verbose: false,
+  blacklist: [],
   host: '', // the micro-mail host
   apiKey: '' // the micro-mail api-key
 };
@@ -17,6 +18,10 @@ const register = (server, options) => {
   server.decorate('server', 'sendEmail', async(data) => {
     if (options.verbose) {
       server.log(['debug', 'hapi-micro-mail', 'send'], { message: `sending request to ${sendAddress}`, data });
+    }
+    if (options.blacklist.includes(data.to)) {
+      server.log(['blacklist', 'hapi-micro-mail', 'send'], { message: `blacklisted email ${data.to} will not be sent`, data });
+      return;
     }
     const { res, payload } = await wreck.post(sendAddress, { payload: data, json: true });
     // payload = JSON.parse(payload.toString());
@@ -57,6 +62,10 @@ const register = (server, options) => {
   server.decorate('server', 'renderEmail', async(data) => {
     if (options.verbose) {
       server.log(['debug', 'hapi-micro-mail', 'render'], { message: `sending request to ${renderAddress}`, data });
+    }
+    if (options.blacklist.includes(data.to)) {
+      server.log(['blacklist', 'hapi-micro-mail', 'send'], { message: `blacklisted email ${data.to} will not be sent`, data });
+      return;
     }
     // may throw HTTP error that must be handled by caller:
     const { res, payload } = await wreck.post(renderAddress, { payload: data });
